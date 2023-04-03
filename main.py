@@ -51,4 +51,5 @@ while srt:
     elif choice1 == 2:
         cal()
     else:
+        print("잘못된 입력")
         srt = False
