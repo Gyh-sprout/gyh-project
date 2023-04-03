@@ -1,6 +1,6 @@
 result = count = countF = totalOpen = totalSubmit = 0
-srt = True
-while srt:
+loop = True
+while loop:
     choice1 = int(input("작업을 선택하세요.\n1. 입력\n2. 계산\n"))
 
 
@@ -53,4 +53,4 @@ while srt:
         cal()
     else:
         print("잘못된 입력")
-        srt = False
+        loop = False
