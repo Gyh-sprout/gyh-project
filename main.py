@@ -38,13 +38,14 @@ while loop:
 
 
     def cal():
-        global srt
+        global loop
         float(result)
         print("제출용: %d학점 (GPA: %.2f)\n" % (totalSubmit, (result / 10) / (count - countF)))
         print("열람용: %d학점 (GPA: %.2f)\n" % (totalOpen, (result / 10) / count))
+
         print("\n프로그램을 종료합니다.\n")
 
-        srt = False
+        loop = False
 
 
     if choice1 == 1:
