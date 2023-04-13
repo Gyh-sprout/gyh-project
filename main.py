@@ -45,6 +45,7 @@ def inp_grade():
         for i in range(0, len(class_list)):  # 튜플값 찾고 수정
             if class_grade > grade_num_dic[class_name]:
                 class_list[i] = class_list[i][0:2] + (class_grade_char,)  # 슬라이싱해 평점 수정
+                break  # 수정하고 멈춤
             else:
                 pass
     else:  # 재수강 아닐 때 값 추가
@@ -59,7 +60,6 @@ def inp_grade():
 
 
 def otp_grade():
-    #print(class_list)
     for i in range(0, len(class_list)):
         print("[%s] %d학점: %s" % (class_dic[class_list[i][0]], class_list[i][1], class_list[i][2]))
 
