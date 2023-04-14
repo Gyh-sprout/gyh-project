@@ -42,12 +42,15 @@ def inp_grade():
     total_open += class_unit  # 학점 합
 
     if class_name in class_dic.values():  # 재수강 판별
-        for i in range(0, len(class_list)):  # 튜플값 찾고 수정
-            if class_grade > grade_num_dic[class_name]:
-                class_list[i] = class_list[i][0:2] + (class_grade_char,)  # 슬라이싱해 평점 수정
-                break  # 수정하고 멈..춰야하는데
-            else:
-                pass
+        if class_grade > grade_num_dic[class_name]:
+            for i in range(0, len(class_list)):  # 같은 과목 명의 리스트값 찾기
+                if class_dic[class_list[i][0]] == class_name:
+                    class_list[i] = class_list[i][0:2] + (class_grade_char,)  # 슬라이싱해 평점 수정
+                    break
+                else:
+                    pass
+        else:  # 재수강 평점이 기존보다 낮거나 같을 때 스킵
+            pass
     else:  # 재수강 아닐 때 값 추가
         class_dic[class_code] = class_name  # 사전 추가
         class_list.append((class_code, class_unit, class_grade_char))  # 과목 코드, 학점, 평점
