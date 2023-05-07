@@ -1,99 +1,97 @@
-from random import randrange  # randrange(x이상,y미만)
-
-result, count, countF = 0, 0, 0  # 평점 총합, 과목 수, F과목 수
-total_open = total_submit = 0  # 열람용 학점합, 제출용 학점합
-class_dic = {}  # key : 과목 코드 / Value : 과목 명
-class_list = []  # 튜플(과목 코드, 학점, 평점)
-loop = True  # 실행 유지
-
-grade_num_dic = {}  # 과목 명 : 평점 숫자
+from random import randrange
 
 
-def inp_grade():
-    class_code = '%d' % randrange(10000, 100000)  # 임의의 코드 생성
-    global count, countF, result, total_open, total_submit
-
-    class_name = input("과목명을 입력하세요:\n")
-    class_unit = int(input("학점을 입력하세요:\n"))
-    class_grade_char = input("평점을 입력하세요:\n")
-
-    match class_grade_char:
+def get_gpa_score(gpa):  # gpa 숫자로
+    match gpa:
         case 'A+':
-            class_grade = 4.5
+            return 4.5
         case 'A':
-            class_grade = 4.0
+            return 4
         case 'B+':
-            class_grade = 3.5
+            return 3.5
         case 'B':
-            class_grade = 3.0
+            return 3
         case 'C+':
-            class_grade = 2.5
+            return 2.5
         case 'C':
-            class_grade = 2.0
+            return 2
         case 'D+':
-            class_grade = 1.5
+            return 1.5
         case 'D':
-            class_grade = 1.0
+            return 1
         case 'F':
-            class_grade = 0.0
-            countF += 1
+            return 0
 
-    result = result + class_unit * class_grade  # 평점 합
-    total_open += class_unit  # 학점 합
 
-    if class_name in class_dic.values():  # 재수강 판별
-        if class_grade > grade_num_dic[class_name]:
-            for i in range(0, len(class_list)):  # 같은 과목 명의 리스트값 찾기
-                if class_dic[class_list[i][0]] == class_name:
-                    class_list[i] = class_list[i][0:2] + (class_grade_char,)  # 슬라이싱해 평점 수정
-                    break
+def calculate_gpa():  # gpa 계산
+    submit_gpa, archive_gpa = 0, 0
+    submit_credit, archive_credit = 0, 0
+
+    for taken_course in taken_course_list:
+        gpa_score = get_gpa_score(taken_course[2])
+
+        if taken_course[2] != 'F':
+            submit_gpa += taken_course[1] * gpa_score
+            submit_credit += taken_course[1]
+        archive_gpa += taken_course[1] * gpa_score
+        archive_credit += taken_course[1]
+
+    submit_gpa /= submit_credit
+    archive_gpa /= archive_credit
+    return submit_credit, archive_credit, submit_gpa, archive_gpa
+
+
+name_to_gpa = {}  # 과목명 : 평점
+taken_course_name = {}  # 과목 코드 : 과목명 & 과목명 : 과목 코드
+taken_course_list = []  # (과목 코드, 학점, 평점)
+
+while True:
+    print(
+        '작업을 선택하세요.\n'
+        '1. 입력\n'
+        '2. 출력\n'
+        '3. 계산'
+    )
+    match input():
+        case '1':  # 입력
+            class_name = input('과목명을 입력하세요 : ')
+            credit = int(input('학점을 입력하세요 : '))
+            gpa = input('평점을 입력하세요 : ')
+
+            if class_name in taken_course_name:
+                past_gpa = name_to_gpa[class_name]
+                if get_gpa_score(gpa) >= get_gpa_score(past_gpa):  # 이전 리스트 안 학적 정보 삭제
+                    course_index = taken_course_list.index((taken_course_name[class_name], credit, past_gpa))
+                    del taken_course_list[course_index]
+                    course_inform = (taken_course_name[class_name], credit, gpa)  # 기존 과목 코드 유지
                 else:
                     pass
-        else:  # 재수강 평점이 기존보다 낮거나 같을 때 스킵
-            pass
-    else:  # 재수강 아닐 때 값 추가
-        class_dic[class_code] = class_name  # 사전 추가
-        class_list.append((class_code, class_unit, class_grade_char))  # 과목 코드, 학점, 평점
+            else:  # 처음 등록이므로 과목 코드 생성 및 등록
+                class_code = str(randrange(10000, 100000))
+                taken_course_name[class_code] = class_name
+                taken_course_name[class_name] = class_code
+                course_inform = (class_code, credit, gpa)  # 학적 정보 생성
 
-    grade_num_dic[class_name] = class_grade  # 과목 명과 숫자 점수 기록
+            taken_course_list.append(course_inform)  # 정보 입력
+            name_to_gpa[class_name] = gpa
 
-    if class_grade != 0:  # 평점이 F가 아닐 때 제출용 학점 추가
-        total_submit += class_unit
-    count += 1  # 과목 수 추가
+            print('입력되었습니다.')
+            continue
 
+        case '2':  # 출력
+            for taken_course in taken_course_list:
+                taken_class_name = taken_course_name[taken_course[0]]
+                print('[{0}] {1}학점: {2}'.format(taken_class_name, taken_course[1], taken_course[2]))
+            continue
 
-def otp_grade():
-    for i in range(0, len(class_list)):
-        print("[%s] %d학점: %s" % (class_dic[class_list[i][0]], class_list[i][1], class_list[i][2]))
+        case '3':  # 계산
+            submit_credit, archive_credit, submit_gpa, archive_gpa = calculate_gpa()
+            print('제출용: {0}학점 (GPA: {1})'.format(submit_credit, submit_gpa))
+            print('열람용: {0}학점 (GPA: {1})'.format(archive_credit, archive_gpa))
 
+        case _:  # 예외 처리
+            print("잘못된 입력입니다. 다시 시도해주세요.")
+            continue
 
-def cal_grade():
-    global loop
-    print("제출용: %d학점 (GPA: %.2f)" % (total_submit, result / (count - countF)))
-    print("열람용: %d학점 (GPA: %.2f)" % (total_open, result / count))
-
-    print("\n프로그램을 종료합니다.\n")
-
-    loop = False
-
-
-while loop:  # 실행 창
-    choice = input("작업을 선택하세요.\n1. 입력\n2. 출력\n3. 계산\n4. 종료\n")
-
-    try:
-        int(choice)  # 문자 입력 예외 처리
-    except:
-        print("다시 입력해주세요.\n")
-        choice = input("작업을 선택하세요.\n1. 입력\n2. 출력\n3. 계산\n4. 종료\n")
-
-    if int(choice) == 1:
-        inp_grade()
-    elif int(choice) == 2:
-        otp_grade()
-    elif int(choice) == 3:
-        cal_grade()
-    elif int(choice) == 4:
-        print("프로그램을 종료합니다.\n")
-        loop = False
-    else:
-        print("다시 입력해주세요.\n")
+    print('프로그램을 종료합니다.')
+    break
