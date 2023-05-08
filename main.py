@@ -65,7 +65,11 @@ while True:
                     del taken_course_list[course_index]
                     course_inform = (taken_course_name[class_name], credit, gpa)  # 기존 과목 코드 유지
                 else:
-                    pass
+                    print(
+                        '평점이 전보다 낮습니다.\n'
+                        '입력을 중단합니다.'
+                    )
+                    continue
             else:  # 처음 등록이므로 과목 코드 생성 및 등록
                 class_code = str(randrange(10000, 100000))
                 taken_course_name[class_code] = class_name
