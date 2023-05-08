@@ -41,16 +41,49 @@ def calculate_gpa():  # gpa 계산
     return submit_credit, archive_credit, submit_gpa, archive_gpa
 
 
-name_to_gpa = {}  # 과목명 : 평점
-taken_course_name = {}  # 과목 코드 : 과목명 & 과목명 : 과목 코드
-taken_course_list = []  # (과목 코드, 학점, 평점)
+user_list = []
 
-while True:
+
+def set_user_class(class_name, credit, gpa):
+    user = UserCourse()
+    user_list.append(user)
+    if class_name in user.taken_course_name:
+        past_gpa = user.name_to_gpa[class_name]
+        if get_gpa_score(gpa) >= get_gpa_score(past_gpa):  # 이전 리스트 안 학적 정보 삭제
+            course_index = user.taken_course_list.index((user.taken_course_name[class_name], credit, past_gpa))
+            del user.taken_course_list[course_index]
+            course_inform = (user.taken_course_name[class_name], credit, gpa)  # 기존 과목 코드 유지
+        else:
+            pass
+    else:  # 처음 등록이므로 과목 코드 생성 및 등록
+        class_code = str(randrange(10000, 100000))
+        user.taken_course_name[class_code] = class_name
+        user.taken_course_name[class_name] = class_code
+        course_inform = (class_code, credit, gpa)  # 학적 정보 생성
+
+    user.taken_course_list.append(course_inform)  # 정보 입력
+    user.name_to_gpa[class_name] = gpa
+    return user
+
+
+class UserCourse:
+    taken_course_name = {}  # 과목 코드 : 과목명 & 과목명 : 과목 코드
+
+    def __init__(self, name):
+        self.name = name
+        self.taken_course_list = []
+        self.name_to_gpa = {}
+
+
+while True:  # 실행창
     print(
         '작업을 선택하세요.\n'
         '1. 입력\n'
         '2. 출력\n'
-        '3. 계산'
+        '3. 조회\n'
+        '4. 계산\n'
+        '5. 학생 변경\n'
+        '6. 종료'
     )
     match input():
         case '1':  # 입력
@@ -58,36 +91,28 @@ while True:
             credit = int(input('학점을 입력하세요 : '))
             gpa = input('평점을 입력하세요 : ')
 
-            if class_name in taken_course_name:
-                past_gpa = name_to_gpa[class_name]
-                if get_gpa_score(gpa) >= get_gpa_score(past_gpa):  # 이전 리스트 안 학적 정보 삭제
-                    course_index = taken_course_list.index((taken_course_name[class_name], credit, past_gpa))
-                    del taken_course_list[course_index]
-                    course_inform = (taken_course_name[class_name], credit, gpa)  # 기존 과목 코드 유지
-                else:
-                    pass
-            else:  # 처음 등록이므로 과목 코드 생성 및 등록
-                class_code = str(randrange(10000, 100000))
-                taken_course_name[class_code] = class_name
-                taken_course_name[class_name] = class_code
-                course_inform = (class_code, credit, gpa)  # 학적 정보 생성
-
-            taken_course_list.append(course_inform)  # 정보 입력
-            name_to_gpa[class_name] = gpa
+            set_user_class(class_name, credit, gpa)  # return user( = UserCourse() )
 
             print('입력되었습니다.')
             continue
 
         case '2':  # 출력
-            for taken_course in taken_course_list:
-                taken_class_name = taken_course_name[taken_course[0]]
-                print('[{0}] {1}학점: {2}'.format(taken_class_name, taken_course[1], taken_course[2]))
+            for taken_course in user_list:  # 클래스 인스턴스화 불러오기
+                taken_class_name = taken_course.taken_course_name[taken_course[0]]
+                print('[{0}] {1}학점: {2}'.format(taken_course.taken_class_name, taken_course.taken_course[1], taken_course.taken_course[2]))
             continue
 
-        case '3':  # 계산
+        case '3':  # 조회
+            continue
+
+        case '4':  # 계산
             submit_credit, archive_credit, submit_gpa, archive_gpa = calculate_gpa()
             print('제출용: {0}학점 (GPA: {1})'.format(submit_credit, submit_gpa))
             print('열람용: {0}학점 (GPA: {1})'.format(archive_credit, archive_gpa))
+            pass
+
+        case '5':  # 종료
+            pass
 
         case _:  # 예외 처리
             print("잘못된 입력입니다. 다시 시도해주세요.")
