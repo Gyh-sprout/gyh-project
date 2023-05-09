@@ -116,13 +116,16 @@ while True:
 
         case '3':  # 조회
             search_name = input('과목명을 입력하세요 : ')
-            for i in range(0,len(user.taken_course_list)):
-                if user.taken_course_list[i][0] == CourseClass.course_name_dict[search_name]:
-                    search_credit = user.taken_course_list[i][1]
-                    break
-                else:
-                    pass
-            print('[{0}] {1}학점 : {2}'.format(search_name, search_credit, user.name_to_gpa[search_name]))
+            if search_name in user.taken_course_name:
+                for i in range(0, len(user.taken_course_list)):
+                    if user.taken_course_list[i][0] == CourseClass.course_name_dict[search_name]:
+                        search_credit = user.taken_course_list[i][1]
+                        break
+                    else:
+                        pass
+                print('[{0}] {1}학점 : {2}'.format(search_name, search_credit, user.name_to_gpa[search_name]))
+            else:
+                print('해당하는 과목이 없습니다.')
             continue
 
         case '4':  # 계산
